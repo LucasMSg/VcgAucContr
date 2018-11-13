@@ -12,13 +12,13 @@ contract Table4Auction {
   }
   
   struct CustomMap4Bidders {
-      mapping (address => uint) maps;
-      address[] biddersAddresses;
+      mapping (uint256 => address) maps;
+      uint256[] bids;
   }
   
   struct Bids {
       address bidder;
-      uint256 valueBid;
+      uint valueBid;
   }
   
   struct CustomMap4Bids {
@@ -46,7 +46,7 @@ contract Table4Auction {
       balances.maps[itemC] = bidder; //0x0000000000000000000000000000000000000000
   }
   
-  function simpleAuctionPrototype() payable returns (address, address, address){
+  function simpleAuctionPrototype(address[] addressBid ,uint[] values) payable returns (address, address, address){
       //input an array of bidders and bids 
       //[adress, uint][] memory bids = [[0x0000000000000000000000000000000000000000, 10], [0x1111111111111111111111111111111111111111, 10]]; 
       
@@ -104,7 +104,7 @@ contract Table4Auction {
         bidmap.maps[bidmap.keys[i]] = bids[i].bidder;
         }
         
-      quickSort(valueBidArray, int(0), int(3));
+     // quickSort(valueBidArray, int(0), int(3));
       
       return (bidmap.maps[valueBidArray[3]], bidmap.maps[valueBidArray[2]], bidmap.maps[valueBidArray[1]]);
   
@@ -120,28 +120,30 @@ contract Table4Auction {
       
   }
   
-  /*function simpleAuction(uint256[] userBids) payable{
-      
-      //maybe use a map key values
-      //lets suppose a set number of participants 
-      //0x0000000000000000000000000000000000000000
-      //0x1111111111111111111111111111111111111111
-      //0x2222222222222222222222222222222222222222
-      //0x3333333333333333333333333333333333333333
-      
-      //we receive an array of values bidded by participants and map them to the addresses
-      
-      bidmap.biddersAddresses = [0x0000000000000000000000000000000000000000,0x1111111111111111111111111111111111111111,0x2222222222222222222222222222222222222222,0x3333333333333333333333333333333333333333];
-      uint arrayLength = bidmap.biddersAddresses.length;
-      
-      for (uint i=0; i<arrayLength; i++) {
-        bidmap.maps[bidmap.biddersAddresses[i]] = userBids[i];
+  //[10, 5, 12, 1]  
+  //["0x0000000000000000000000000000000000000000", "0x1111111111111111111111111111111111111111", "0x1222211111111111111111111111111111111111", "0x4444411111111111111111111111111111111111"]
+  //["0x0000000000000000000000000000000000000000", "0x1111111111111111111111111111111111111111", "0x1222211111111111111111111111111111111111", "0x4444411111111111111111111111111111111111"], [10, 5, 12, 1]
+  function simpleAuction(address[] addressBid ,uint256[] values) payable returns (address){
+     /*first buid a map with bids and bidders*/
+     //couldnt make this a memory
+     CustomMap4Bidders bids;
+     //https://ethereum.stackexchange.com/questions/25282/why-conceptually-cant-mappings-be-local-variables 
+     //bids.bids = values;
+     uint256 arrayLength = values.length;
+     
+     for (uint i=0; i<arrayLength; i++) {
+        bids.maps[values[i]] = addressBid[i];
         }
-        
-       // quickSort(valueBidArray, int(0), int(3));
-      
+    //construct the map
+
+    //quick sort the map
+    quickSort(values, int(0), int(arrayLength - 1));
     
-  }*/
+    //bids.bids = values
+    
+    return (bids.maps[values[3]]);
+     
+  }
   
  
 
@@ -165,7 +167,7 @@ contract Table4Auction {
     //   return data;
     //}
     
-    function quickSort(uint[4] memory arr, int left, int right) internal{ //O(n^2)
+    function quickSort(uint[] memory arr, int left, int right) internal{ //O(n^2)
         int i = left;
         int j = right;
         if(i==j) return;
