@@ -123,13 +123,19 @@ contract Table4Auction {
   //[10, 5, 12, 1]  
   //["0x0000000000000000000000000000000000000000", "0x1111111111111111111111111111111111111111", "0x1222211111111111111111111111111111111111", "0x4444411111111111111111111111111111111111"]
   //["0x0000000000000000000000000000000000000000", "0x1111111111111111111111111111111111111111", "0x1222211111111111111111111111111111111111", "0x4444411111111111111111111111111111111111"], [10, 5, 12, 1]
-  function simpleAuction(address[] addressBid ,uint256[] values) payable returns (address){
+  
+  function simpleAuction(address[] addressBid ,uint256[] values) payable returns (address[]){
      /*first buid a map with bids and bidders*/
      //couldnt make this a memory
      CustomMap4Bidders bids;
      //https://ethereum.stackexchange.com/questions/25282/why-conceptually-cant-mappings-be-local-variables 
      //bids.bids = values;
+     //Could create separeted functions for this, but maybe we'll need to write on storage  
      uint256 arrayLength = values.length;
+     
+     //creating an array for the winners
+     address[] winners; //cannot be a memory, or we cant use push
+     
      
      for (uint i=0; i<arrayLength; i++) {
         bids.maps[values[i]] = addressBid[i];
@@ -139,12 +145,26 @@ contract Table4Auction {
     //quick sort the map
     quickSort(values, int(0), int(arrayLength - 1));
     
-    //bids.bids = values
+    uint256 itemsLenght = balances.keys.length;
     
-    return (bids.maps[values[3]]);
-     
+    for (uint j = (itemsLenght); j > 0; j-- ) {
+     winners.push(bids.maps[values[j]]);   
+    }
+    
+    updateWinners(winners);
+    return (winners);
   }
   
+  
+  function updateWinners(address[] winners) payable returns(uint256){
+      
+      uint256 itemsLenght = winners.length;
+      
+      for(uint i = 0; i < itemsLenght; i++) {
+          balances.maps[balances.keys[i]] = winners[(itemsLenght - 1 - i)];
+      }
+      
+  }
  
 
   function printMap() constant returns (uint256[],address[]){
